@@ -112,6 +112,7 @@ support-$2_$3: $(SUPPORT_BUILD_DIR)/$2_$3/$(INSTALL_WITNESS)
 clean-$2_$3:
 	$$P RM $(SUPPORT_BUILD_DIR)/$2_$3
 	rm -rf $(SUPPORT_BUILD_DIR)/$2_$3
+	rm *.ll
 
 # The actual rule that builds the package
 # The targets are all modified to contain a `%' instead of the version number, otherwise make
