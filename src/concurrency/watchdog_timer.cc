@@ -72,15 +72,15 @@ void watchdog_timer_t::run(auto_drainer_t::lock_t keepalive) {
     }
 }
 
-#include <string>
-extern "C" uint16_t __dst_get_random_uint8_t();
-extern "C" int __dst_event_trigger(const char *s);
+// #include <string>
+// extern "C" uint16_t __dst_get_random_uint8_t();
+// extern "C" int __dst_event_trigger(const char *s);
 void watchdog_timer_t::set_next_threshold() {
-    // int timeout_ms = min_timeout_ms + randint(max_timeout_ms - min_timeout_ms + 1);
-    int timeout_ms = min_timeout_ms + __dst_get_random_uint8_t();
+    int timeout_ms = min_timeout_ms + randint(max_timeout_ms - min_timeout_ms + 1);
+    // int timeout_ms = min_timeout_ms + __dst_get_random_uint8_t();
     
     // fprintf(stderr, "timeout_ms %d.\n", timeout_ms);
-    __dst_event_trigger(("timeout_ms is " + std::to_string(timeout_ms)).c_str());
+    // __dst_event_trigger(("timeout_ms is " + std::to_string(timeout_ms)).c_str());
     next_threshold = ticks_t{get_ticks().nanos + timeout_ms * MILLION};
 }
 
