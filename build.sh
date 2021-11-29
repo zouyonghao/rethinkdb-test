@@ -12,6 +12,7 @@ if python --version 2>&1 | grep 3; then
 	echo "set default python to version 2 with \"sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1\""
 	exit -1
 fi
+sudo apt install libcurl4-openssl-dev zlib1g-dev libssl-dev -y
 cp ~/distributed-system-test/rethinkdb_test/bin/compiler-config.json /tmp
 ./configure --with-system-malloc CXX=/home/zyh/distributed-system-test/build/fuzz/default_compiler++
 make
