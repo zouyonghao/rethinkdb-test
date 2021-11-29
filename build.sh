@@ -14,5 +14,6 @@ if python --version 2>&1 | grep 3; then
 fi
 sudo apt install libcurl4-openssl-dev zlib1g-dev libssl-dev -y
 cp ~/distributed-system-test/rethinkdb_test/bin/compiler-config.json /tmp
-./configure --with-system-malloc CXX=/home/zyh/distributed-system-test/build/fuzz/default_compiler++
+# ./configure --with-system-malloc CXX=/home/zyh/distributed-system-test/build/fuzz/default_compiler++
+./configure --with-system-malloc --allow-fetch CXX=clang++-9 CXXFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
 make
