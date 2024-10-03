@@ -1,3 +1,4 @@
+sudo apt update
 sudo apt install npm -y
 sudo apt install coffeescript -y
 sudo apt install curl -y
