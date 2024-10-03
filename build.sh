@@ -14,7 +14,7 @@ if python --version 2>&1 | grep 3; then
 fi
 sudo apt install libcurl4-openssl-dev zlib1g-dev libssl-dev -y
 ./configure --with-system-malloc --allow-fetch CXX=clang++-9 CXXFLAGS="-fsanitize=address" LDFLAGS="-fsanitize=address"
-make
+make -j$(nproc)
 
 echo "set default python to version 3"
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
