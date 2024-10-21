@@ -170,11 +170,13 @@ public:
         return members;
     }
 
+    // INSTRUMENT_FUNC
     bool is_member(const raft_member_id_t &member) const {
         return config.is_member(member) ||
             (is_joint_consensus() && new_config->is_member(member));
     }
 
+    // INSTRUMENT_FUNC
     bool is_quorum(const std::set<raft_member_id_t> &members) const {
         /* Raft paper, Section 6: "Agreement (for elections and entry commitment)
         requires separate majorities from both the old and new configurations." */
@@ -185,6 +187,7 @@ public:
         }
     }
 
+    // INSTRUMENT_FUNC
     bool is_valid_leader(const raft_member_id_t &member) const {
         /* Raft paper, Section 6: "Any server from either configuration may serve as
         leader." */
@@ -269,6 +272,7 @@ public:
 
     /* Returns the term of the log entry at the given index. The index must either be
     present in the log or the last index before the log. */
+    // INSTRUMENT_FUNC
     raft_term_t get_entry_term(raft_log_index_t index) const {
         guarantee(index >= prev_index, "the log doesn't go back this far");
         guarantee(index <= get_latest_index(), "the log doesn't go forward this far");
@@ -280,6 +284,7 @@ public:
     }
 
     /* Returns the entry in the log at the given index. */
+    // INSTRUMENT_FUNC
     const raft_log_entry_t<state_t> &get_entry_ref(raft_log_index_t index) const {
         guarantee(index > prev_index, "the log doesn't go back this far");
         guarantee(index <= get_latest_index(), "the log doesn't go forward this far");
@@ -287,6 +292,7 @@ public:
     }
 
     /* Deletes the log entry at the given index and all entries after it. */
+    // INSTRUMENT_FUNC
     void delete_entries_from(raft_log_index_t index) {
         guarantee(index > prev_index, "the log doesn't go back this far");
         guarantee(index <= get_latest_index(), "the log doesn't go forward this far");
@@ -295,6 +301,7 @@ public:
 
     /* Deletes the log entry at the given index and all entries before it. Note that
     `index` may be after the last log entry. */
+    // INSTRUMENT_FUNC
     void delete_entries_to(raft_log_index_t index, raft_term_t index_term) {
         guarantee(index > prev_index, "the log doesn't go back this far");
         if (index <= get_latest_index()) {
@@ -308,6 +315,7 @@ public:
     }
 
     /* Appends the given entry ot the log. */
+    // INSTRUMENT_FUNC
     void append(raft_log_entry_t<state_t> entry) {
         entries.push_back(std::move(entry));
     }
@@ -613,6 +621,7 @@ public:
 
     /* `get_latest_state()` describes the state of the Raft cluster if every log entry,
     including uncommitted entries, has been applied. */
+    // INSTRUMENT_FUNC
     clone_ptr_t<watchable_t<state_and_config_t> > get_latest_state() {
         assert_thread();
         return latest_state.get_watchable();
@@ -642,6 +651,7 @@ public:
     A `change_lock_t` must be constructed on this `raft_member_t` before calling this.
     This is a separate step so that `get_state_for_init()` doesn't need to block in
     order to obtain a lock internally. */
+    // INSTRUMENT_FUNC
     raft_persistent_state_t<state_t> get_state_for_init(
         const change_lock_t &change_lock_proof);
 
@@ -672,9 +682,11 @@ public:
     - This member is in contact with a quorum of followers
     - We are not currently in a reconfiguration (for `get_readiness_for_config_change()`)
    */
+   // INSTRUMENT_FUNC
     clone_ptr_t<watchable_t<bool> > get_readiness_for_change() {
         return readiness_for_change.get_watchable();
     }
+    // INSTRUMENT_FUNC
     clone_ptr_t<watchable_t<bool> > get_readiness_for_config_change() {
         return readiness_for_config_change.get_watchable();
     }
@@ -704,12 +716,15 @@ public:
     that you can use to monitor the progress of the change. If it is not successful, it
     will return `nullptr`. See `get_readiness_for_[config_]change()` for an explanation
     of when and why it will return `nullptr`. */
+    // INSTRUMENT_FUNC
     scoped_ptr_t<change_token_t> propose_change(
         change_lock_t *change_lock,
         const typename state_t::change_t &change);
+    // INSTRUMENT_FUNC
     scoped_ptr_t<change_token_t> propose_config_change(
         change_lock_t *change_lock,
         const raft_config_t &new_config);
+    // INSTRUMENT_FUNC
     scoped_ptr_t<change_token_t> propose_noop(
         change_lock_t *change_lock);
 
@@ -757,12 +772,15 @@ private:
 
     /* `on_rpc()` calls one of these three methods depending on what type of RPC it
     received. */
+    // INSTRUMENT_FUNC
     void on_request_vote_rpc(
         const typename raft_rpc_request_t<state_t>::request_vote_t &rpc,
         raft_rpc_reply_t::request_vote_t *reply_out);
+    // INSTRUMENT_FUNC
     void on_install_snapshot_rpc(
         const typename raft_rpc_request_t<state_t>::install_snapshot_t &rpc,
         raft_rpc_reply_t::install_snapshot_t *reply_out);
+    // INSTRUMENT_FUNC
     void on_append_entries_rpc(
         const typename raft_rpc_request_t<state_t>::append_entries_t &rpc,
         raft_rpc_reply_t::append_entries_t *reply_out);
@@ -780,6 +798,7 @@ private:
     `network->get_connected_members()` changes. If we're a leader, we use it to run
     `update_readiness_for_change()`. We also use it to check for higher terms in virtual
     heartbeats. */
+    // INSTRUMENT_FUNC
     void on_connected_members_change(
         const raft_member_id_t &member_id,
         const optional<raft_term_t> *value);
@@ -787,6 +806,7 @@ private:
     /* `on_rpc_from_leader()` is a helper function that we call in response to
     AppendEntries RPCs, InstallSnapshot RPCs, and virtual heartbeats. It returns `true`
     if the RPC is valid, and `false` if we should reject the RPC. */
+    // INSTRUMENT_FUNC
     bool on_rpc_from_leader(
         const raft_member_id_t &request_leader_id,
         raft_term_t request_term,
@@ -798,6 +818,7 @@ private:
 
     /* `apply_log_entries()` updates `state_and_config` with the entries from `log` with
     indexes `first <= index <= last`. */
+    // INSTRUMENT_FUNC
     static void apply_log_entries(
         state_and_config_t *state_and_config,
         const raft_log_t<state_t> &log,
@@ -807,17 +828,20 @@ private:
     /* `update_term()` sets the term to `new_term` and resets all per-term variables.
     Since we often want to set `ps().voted_for` to something immediately after starting a
     new term, it allows setting that to avoid an extra storage write operation. */
+    // INSTRUMENT_FUNC
     void update_term(raft_term_t new_term,
                      raft_member_id_t new_voted_for,
                      const new_mutex_acq_t *mutex_acq);
 
     /* When we change the commit index we have to also apply changes to the state
     machine. `update_commit_index()` handles that automatically. */
+    // INSTRUMENT_FUNC
     void update_commit_index(raft_log_index_t new_commit_index,
                              const new_mutex_acq_t *mutex_acq);
 
     /* When we change `match_index` we might have to update `commit_index` as well.
     `leader_update_match_index()` handles that automatically. */
+    // INSTRUMENT_FUNC
     void leader_update_match_index(
         raft_member_id_t key,
         raft_log_index_t new_value,
@@ -826,16 +850,19 @@ private:
     /* `update_readiness_for_change()` should be called whenever any of the variables
     that are used to compute `readiness_for_change` or `readiness_for_config_change` are
     modified. */
+    // INSTRUMENT_FUNC
     void update_readiness_for_change();
 
     /* `candidate_or_leader_become_follower()` moves us from the `candidate` or `leader`
     state to `follower` state. It kills `candidate_and_leader_coro()` and blocks until it
     exits. */
+    // INSTRUMENT_FUNC
     void candidate_or_leader_become_follower(const new_mutex_acq_t *mutex_acq);
 
     /* `candidate_and_leader_coro()` contains most of the candidate- and leader-specific
     logic. It runs in a separate coroutine for as long as we are a candidate or leader.
     */
+    // INSTRUMENT_FUNC
     void candidate_and_leader_coro(
         /* A `new_mutex_acq_t` allocated on the heap. `candidate_and_leader_coro()` takes
         ownership of it. */
@@ -851,6 +878,7 @@ private:
     the case where another leader is elected and also for detecting the case where the
     election times out, and pulsing `cancel_signal`. It returns `true` if we were
     elected. */
+    // INSTRUMENT_FUNC
     bool candidate_run_election(
         /* Note that `candidate_run_election()` may temporarily release `mutex_acq`, but
         it will always be holding the lock when `run_election()` returns. But if
@@ -863,6 +891,7 @@ private:
     /* `leader_spawn_update_coros()` is a helper function for
     `candidate_and_leader_coro()` that spawns or kills instances of `run_updates()` as
     necessary to ensure that there is always one for each cluster member. */
+    // INSTRUMENT_FUNC
     void leader_spawn_update_coros(
         /* The value of `nextIndex` to use for each newly connected peer. */
         raft_log_index_t initial_next_index,
@@ -874,6 +903,7 @@ private:
     `leader_spawn_update_coros()` spawns one in a new coroutine for each peer. It pushes
     install-snapshot RPCs and/or append-entry RPCs out to the given peer until
     `update_keepalive.get_drain_signal()` is pulsed. */
+    // INSTRUMENT_FUNC
     void leader_send_updates(
         const raft_member_id_t &peer,
         raft_log_index_t initial_next_index,
@@ -884,6 +914,7 @@ private:
     reconfiguration (by committing a joint consensus configuration) and if so, it starts
     the second phase by committing the new configuration. It also checks if we have
     completed the second phase and if so, it makes us step down. */
+    // INSTRUMENT_FUNC
     void leader_continue_reconfiguration(
         const new_mutex_acq_t *mutex_acq);
 
@@ -891,6 +922,7 @@ private:
     `candidate_run_election()` and `leader_send_updates()`. If the given term is greater
     than the current term, it updates the current term and interrupts
     `candidate_and_leader_coro()`. It returns `true` if the term was changed. */
+    // INSTRUMENT_FUNC
     bool candidate_or_leader_note_term(
         raft_term_t term,
         const new_mutex_acq_t *mutex_acq);
@@ -898,6 +930,7 @@ private:
     /* `leader_append_log_entry()` is a helper for `propose_change_if_leader()` and
     `propose_config_change_if_leader()`. It adds an entry to the log but doesn't wait for
     the entry to be committed. */
+    // INSTRUMENT_FUNC
     void leader_append_log_entry(
         const raft_log_entry_t<state_t> &log_entry,
         const new_mutex_acq_t *mutex_acq);
