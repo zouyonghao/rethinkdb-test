@@ -1663,7 +1663,7 @@ class RootMarkingVisitor : public ObjectVisitor {
 
  private:
   void MarkObjectByPointer(Object** p) {
-    if (!(*p)->IsHeapObject()) return;
+    if (!p || !(*p) || !(*p)->IsHeapObject()) return;
 
     // Replace flat cons strings in place.
     HeapObject* object = ShortCircuitConsString(p);
@@ -1671,6 +1671,7 @@ class RootMarkingVisitor : public ObjectVisitor {
     if (mark_bit.Get()) return;
 
     Map* map = object->map();
+    if (!map) return;
     // Mark the object.
     collector_->SetMark(object, mark_bit);
 

@@ -168,7 +168,7 @@ pkg_link-flags () {
     # These are the necessary libraries recommended by the docs:
     # https://developers.google.com/v8/get_started#hello
      if [[ "$ARCH" != "ppc64le" ]]; then
-	 for lib in libv8_{base,libbase,snapshot,libplatform}; do
+	 for lib in libv8_{base,libbase,nosnapshot,libplatform}; do
              echo "$install_dir/lib/$lib.a"
     	 done
     	 for lib in libicu{i18n,uc,data}; do
