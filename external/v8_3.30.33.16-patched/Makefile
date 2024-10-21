@@ -74,7 +74,7 @@ endif
 ifeq ($(verifypredictable), on)
   GYPFLAGS += -Dv8_enable_verify_predictable=1
 endif
-# snapshot=off
+snapshot=off
 ifeq ($(snapshot), off)
   GYPFLAGS += -Dv8_use_snapshot='false'
 endif
