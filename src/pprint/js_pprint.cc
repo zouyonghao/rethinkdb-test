@@ -9,6 +9,9 @@
 #include "rdb_protocol/error.hpp"
 #include "rdb_protocol/term_storage.hpp"
 
+#include <ctype.h>
+#include <math.h>
+
 namespace pprint {
 
 
